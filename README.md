@@ -1,2 +1,6 @@
-# TemplateForMultiplayerGame
-This repo is a template for beginning with multiplayer game 
+# RoboWars
+## Team Members
+## About the Game
+... Some Description here
+## References
+* Multiplayer Unity Game Template - https://github.com/pulsingcoder/TemplateForMultiplayerGame
