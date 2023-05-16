@@ -20,6 +20,7 @@ public class PlayerMovement : MonoBehaviour
     void FixedUpdate()
     {
         Vector3 direction = Vector3.forward * variableJoystick.Vertical + Vector3.right * variableJoystick.Horizontal;
-        rigidBody.AddForce(direction * speed * Time.fixedDeltaTime, ForceMode.VelocityChange);
+        // rigidBody.AddForce(direction * speed * Time.fixedDeltaTime, ForceMode.VelocityChange);
+        transform.Translate(direction * speed * Time.fixedDeltaTime);
     }
 }
