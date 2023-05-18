@@ -54,6 +54,7 @@ public class NewBehaviourScript : MonoBehaviour
             /*
             else
             {
+                // To change the position after placing the object (Not required)
                 spawnedObject.transform.position = hitPose.position;
             }*/
         }
