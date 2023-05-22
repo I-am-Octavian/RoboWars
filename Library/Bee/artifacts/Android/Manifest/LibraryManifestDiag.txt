@@ -1,0 +1,17 @@
+Using template '/home/priyanshu30/Unity/Hub/Editor/2021.3.1f1/Editor/Data/PlaybackEngines/AndroidPlayer/Apk/UnityManifest.xml'
+
+android.hardware.vulkan.version was added because:
+	One of the graphics devices was Vulkan
+android.permission.INTERNET was added because:
+	System.Net.Sockets was present in:
+		websocket-sharp-FeaturesChecked.txt
+		PhotonRealtime-FeaturesChecked.txt
+		Photon3Unity3D-FeaturesChecked.txt
+	Development player
+android.hardware.touchscreen.multitouch, android.hardware.touchscreen.multitouch.distinct were enabled because:
+	UnityEngine.Input::GetTouch was present in:
+		UnityEngine.UI-FeaturesChecked.txt
+		Assembly-CSharp-FeaturesChecked.txt
+	UnityEngine.Input::get_touchCount was present in:
+		UnityEngine.UI-FeaturesChecked.txt
+		Assembly-CSharp-FeaturesChecked.txt
