@@ -60,3 +60,7 @@ crashlytics-build.properties
 
 # Backup Folder
 RoboWars_BackUpThisFolder_ButDontShipItWithYourGame/
+RoboWarsDebug_BackUpThisFolder_ButDontShipItWithYourGame/
+RoboWarsPlacement_BackUpThisFolder_ButDontShipItWithYourGame/
+RoboWarsTapToPlace_BackUpThisFolder_ButDontShipItWithYourGame/
+

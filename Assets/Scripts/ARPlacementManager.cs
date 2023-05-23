@@ -12,22 +12,22 @@ public class ARPlacementManager : MonoBehaviour
     public Camera arCamera;
     public GameObject battleArenaGameObject;
 
-    private bool m_ArenaPlaced;
+    private static bool s_ArenaPlaced;
 
     private void Awake()
     {
+        s_ArenaPlaced = false;
         m_ARRayCastManager = GetComponent<ARRaycastManager>();
     }
     // Start is called before the first frame update
     void Start()
     {
-        m_ArenaPlaced = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!m_ArenaPlaced)
+        if (!s_ArenaPlaced)
         {
             Vector3 centerOfScreen = new Vector3(Screen.width / 2, Screen.height / 2);
             Ray ray = arCamera.ScreenPointToRay(centerOfScreen);
@@ -36,13 +36,18 @@ public class ARPlacementManager : MonoBehaviour
                 // Intersection
                 Pose hitPose = raycast_Hits[0].pose;
                 Vector3 positionToBePlaced = hitPose.position;
-                battleArenaGameObject.transform.position = positionToBePlaced;
+                // battleArenaGameObject.transform.position = positionToBePlaced;
 
-                m_ArenaPlaced = true;
-                // m_ARRayCastManager.enabled = false;
+                Instantiate(battleArenaGameObject, positionToBePlaced, hitPose.rotation);
+
+                s_ArenaPlaced = true;
             }
         }
 
+    }
 
+    public static bool GetIsArenaPlaced()
+    {
+        return s_ArenaPlaced;
     }
 }
