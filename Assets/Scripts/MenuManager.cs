@@ -4,19 +4,18 @@ using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
-using UnityEditor;
-
+using TMPro;
 public class MenuManager : MonoBehaviourPunCallbacks
 {
-    [Header(" — -Menus — -")]
+    [Header(" â€” -Menus â€” - ")]
     public GameObject mainMenu;
     public GameObject lobbyMenu;
-    [Header(" — -Main Menu — -")]
+    [Header(" â€” -Main Menu â€” - ")]
     public Button createRoomBtn;
     public Button joinRoomBtn;
-    [Header(" — -Lobby Menu — -")]
-    public Text roomName;
-    public Text playerList;
+    [Header(" â€” -Lobby Menu â€” - ")]
+    public TMP_Text roomName;
+    public TMP_Text playerList;
     public Button startGameBtn;
     private void Start()
     {
@@ -58,6 +57,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
         UpdateLobbyUI();
     }
     [PunRPC]
+
     public void UpdateLobbyUI()
     {
         playerList.text = "";
@@ -65,7 +65,7 @@ public class MenuManager : MonoBehaviourPunCallbacks
         {
             if (player.IsMasterClient)
             {
-                playerList.text += player.NickName + " (Host) \n";
+                playerList.text += player.NickName + " (Host)\n";
             }
             else
             {
