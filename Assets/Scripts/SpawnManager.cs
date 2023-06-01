@@ -16,7 +16,12 @@ public class SpawnManager : MonoBehaviourPunCallbacks
     // Update is called once per frame
     void Update()
     {
-        
+        if (ARPlacementDetection.s_StartGame)
+        {
+            int randomSpawnPoint = Random.Range(0, spawnPositions.Length - 1);
+            Vector3 instantiatePosition = spawnPositions[randomSpawnPoint].position;
+            PhotonNetwork.Instantiate(playerPrefab.name, instantiatePosition, Quaternion.identity);
+        }
     }
 
 

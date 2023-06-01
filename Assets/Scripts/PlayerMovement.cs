@@ -7,6 +7,7 @@ using UnityEngine.UIElements;
 using Photon.Realtime;
 using Photon.Pun.Demo.Asteroids;
 using UnityEngine.XR.ARFoundation;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
 public class PlayerMovement : MonoBehaviour
@@ -14,58 +15,72 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     public float speed = 2f;
     public float jumpForce = 5f;
-    public float groundCheckDistance= 0.2f;
-    
+    public float groundCheckDistance = 0f;
+
     public VariableJoystick variableJoystick;
     public Animator robotAnimator;
-    public Player photonPlayer;
     public GameObject arCameraGameObject;
-    
+
+    public int id;
+    public Text playerNickName;
+    public Player photonPlayer;
+
     public LayerMask groundLayer;
 
     private Rigidbody m_RigidBody;
     private CapsuleCollider m_CapsuleCollider;
     private bool m_Grounded = true;
     private float m_JumpInitHeight;
+    private int m_PlayerHealth = 2000;
+    private readonly int m_DamagePerBullet = 200;
 
-    // Start is called before the first frame update
-    void Start()
+
+    [PunRPC]
+    public void Initialize(Player thePlayer)
     {
-        m_RigidBody = GetComponent<Rigidbody>();
-        m_CapsuleCollider = GetComponent<CapsuleCollider>();
-
-        m_JumpInitHeight = transform.position.y;
+        photonPlayer = thePlayer;
+        id = thePlayer.ActorNumber;
+        GameManager.instance.players[id - 1] = this;
     }
 
-    // Update is called once per frame
+    void Start()
+    {
+        Debug.LogWarning("Player Movement Start");
+        m_RigidBody = GetComponent<Rigidbody>();
+        m_CapsuleCollider = GetComponent<CapsuleCollider>();
+        m_JumpInitHeight = transform.position.y;
+        // playerNickName.text = photonPlayer.NickName;
+    }
+
+    [PunRPC]
     void FixedUpdate()
     {
-        Vector3 direction = Vector3.forward * variableJoystick.Vertical + Vector3.right * variableJoystick.Horizontal;
-
-        if (transform.position.y > m_JumpInitHeight)
+        if (photonPlayer.IsLocal)
         {
-            direction = Vector3.zero;
-        }
-        if (transform.position.y == m_JumpInitHeight)
-        {
-            m_RigidBody.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
-        }
+            Vector3 direction = Vector3.forward * variableJoystick.Vertical + Vector3.right * variableJoystick.Horizontal;
+
+            if (transform.position.y > m_JumpInitHeight)
+            {
+                direction = Vector3.zero;
+            }
+            if (transform.position.y == m_JumpInitHeight)
+            {
+                m_RigidBody.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+            }
 
 
-        if (direction == Vector3.zero)
-        {
-            robotAnimator.enabled = false;
-        }
-        else
-        {
-            robotAnimator.enabled = true;
-        }
-        // m_RigidBody.isKinematic = true;
-        transform.Translate(speed * Time.fixedDeltaTime * direction);
-        // m_RigidBody.isKinematic = false;
-        // transform.rotation = Quaternion.LookRotation(direction);
+            if (direction == Vector3.zero)
+            {
+                robotAnimator.enabled = false;
+            }
+            else
+            {
+                robotAnimator.enabled = true;
+            }
+            transform.Translate(speed * Time.fixedDeltaTime * direction);
 
-        m_Grounded = Physics.Raycast(transform.position, Vector3.down, m_CapsuleCollider.bounds.extents.y + groundCheckDistance, groundLayer);
+            m_Grounded = Physics.Raycast(transform.position, Vector3.down, m_CapsuleCollider.bounds.extents.y + groundCheckDistance, groundLayer);
+        }
 
     }
     
@@ -88,7 +103,7 @@ public class PlayerMovement : MonoBehaviour
         RaycastHit hit;
         if(Physics.Raycast(arCameraGameObject.transform.position, arCameraGameObject.transform.forward, out hit))
         {
-            if(hit.transform.CompareTag("Plane"))
+            if(hit.transform.CompareTag("Plane") || hit.transform.CompareTag("Player"))
             {
                 Vector3 direction;
 
@@ -96,8 +111,8 @@ public class PlayerMovement : MonoBehaviour
                 // bullet.name = photonPlayer.NickName;
                 Rigidbody bulletRigidBody = bullet.GetComponent<Rigidbody>();
 
-                Debug.Log(hit.transform.position);
-                Debug.Log(transform.position);
+                Debug.Log("Hit Position: " + hit.transform.position);
+                Debug.Log("Player Position: " + transform.position);
 
                 
                 direction = hit.transform.position - transform.position;
@@ -106,12 +121,27 @@ public class PlayerMovement : MonoBehaviour
                 bullet.transform.localPosition = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
                 bullet.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
 
-                Debug.Log(direction);
+                Debug.Log("Shoot Direction: " + direction);
                 bulletRigidBody.AddForce(direction * 300f);
                 
                 Destroy(bullet, 10);
             }
         }
 
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.name == "bullet")
+        {
+            if(m_PlayerHealth - m_DamagePerBullet > 0)
+            {
+                m_PlayerHealth -= m_DamagePerBullet;
+            }
+            else
+            {
+                Debug.Log("Player Died");
+            }
+        }    
     }
 }

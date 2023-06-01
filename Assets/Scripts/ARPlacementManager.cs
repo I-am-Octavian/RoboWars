@@ -45,9 +45,10 @@ public class ARPlacementManager : MonoBehaviour
         }
 
     }
-
+    /*
     public static bool GetIsArenaPlaced()
     {
         return s_ArenaPlaced;
     }
+    */
 }

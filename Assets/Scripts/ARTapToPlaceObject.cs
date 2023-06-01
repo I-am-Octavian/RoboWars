@@ -6,9 +6,13 @@ using UnityEngine.InputSystem.EnhancedTouch;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 
+using Photon.Realtime;
+using Photon.Pun;
+
 public class ARTapToPlaceObject : MonoBehaviour
 {
     public GameObject battleArena;
+    public GameObject relativeSpawnPositions;
     // public GameObject gameObjectToInstantiate;
 
     // private static GameObject spawnedObject;
@@ -39,6 +43,7 @@ public class ARTapToPlaceObject : MonoBehaviour
                 {
                     var hitPose = hits[0].pose;
                     Instantiate(battleArena, hitPose.position, hitPose.rotation);
+                    Instantiate(relativeSpawnPositions, hitPose.position, hitPose.rotation);
                     // Vector3 positionToBePlaced = hitPose.position;
                     // battleArena.transform.position = positionToBePlaced;
 
@@ -58,6 +63,7 @@ public class ARTapToPlaceObject : MonoBehaviour
             }*/
     }
 
+    [PunRPC]
     public static bool GetIsArenaPlaced()
     {
         return s_ArenaPlaced;
