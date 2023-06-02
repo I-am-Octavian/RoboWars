@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using UnityEngine.XR.ARFoundation;
 
 public class MySynchronisationScript : MonoBehaviour, IPunObservable
 {
@@ -10,6 +11,7 @@ public class MySynchronisationScript : MonoBehaviour, IPunObservable
     Vector3 networkPosition;
     Quaternion networkRotation;
 
+
     public bool synchronisedVelocity = true;
     public bool synchronisedAngularVelocity = true;
     public float distance;
@@ -17,7 +19,7 @@ public class MySynchronisationScript : MonoBehaviour, IPunObservable
 
     public bool isTeleportEnabled = true;
     public float teleportDistanceGreaterThan = 5.0f;
-
+   
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -39,12 +41,16 @@ public class MySynchronisationScript : MonoBehaviour, IPunObservable
 
     private void FixedUpdate()
     {
+        if (!ARPlacementDetection.s_StartGame)
+        {
+            return;
+        }
         if (!photonView.IsMine)
         {
             rb.position = Vector3.MoveTowards(rb.position, networkPosition,distance *(1.0f/PhotonNetwork.SerializationRate));
             rb.rotation = Quaternion.RotateTowards(rb.rotation, networkRotation, angle * (1.0f / PhotonNetwork.SerializationRate));
         }
-        
+
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
@@ -53,6 +59,11 @@ public class MySynchronisationScript : MonoBehaviour, IPunObservable
         {
             // if photon view is mine then I'm the one who control this player 
             // I'll send my position, velocity data to other players
+            if(!ARPlacementDetection.s_StartGame)
+            {
+                return;
+            }
+
             stream.SendNext(rb.position);
             stream.SendNext(rb.rotation);
             if (synchronisedVelocity)
@@ -67,6 +78,10 @@ public class MySynchronisationScript : MonoBehaviour, IPunObservable
         else
         {
             // this will call on my instance that is there on remote player
+            if (!ARPlacementDetection.s_StartGame)
+            {
+                return;
+            }
             networkPosition = (Vector3) stream.ReceiveNext();
             networkRotation = (Quaternion) stream.ReceiveNext();
             // teleport if the remote player has gone gone to far due to connectivity issues

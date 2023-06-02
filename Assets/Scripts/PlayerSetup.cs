@@ -13,14 +13,14 @@ public class PlayerSetup : MonoBehaviourPun
         // if this is local player
         if (photonView.IsMine)
         {
-            transform.GetComponent<Movement>().enabled = true;
-            transform.GetComponent<Movement>().joystick.gameObject.SetActive(true);
+            transform.GetComponent<PlayerMovement>().variableJoystick.gameObject.SetActive(true);
+            transform.GetComponent<PlayerMovement>().enabled = true;
         }
         // not local player
         else
         {
-            transform.GetComponent<Movement>().enabled = false;
-            transform.GetComponent<Movement>().joystick.gameObject.SetActive(false);
+            transform.GetComponent<PlayerMovement>().variableJoystick.gameObject.SetActive(false);
+            transform.GetComponent<PlayerMovement>().enabled = false;
         }
         SetPlayerName();
     }
