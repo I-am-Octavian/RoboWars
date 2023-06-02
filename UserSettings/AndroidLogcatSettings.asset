@@ -1,9 +1,9 @@
 {
     "m_SelectedDeviceId": "RZCT90AG8EN",
     "m_SelectedPackage": {
-        "deviceId": "",
-        "name": "",
-        "processId": 0,
+        "deviceId": "RZCT90AG8EN",
+        "name": "com.Group7.RoboWars",
+        "processId": 17463,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -17,26 +17,80 @@
         {
             "deviceId": "RZCT90AG8EN",
             "name": "com.Group7.RoboWars",
-            "processId": 4006,
+            "processId": 25766,
             "exited": true
+        },
+        {
+            "deviceId": "RZCT90AG8EN",
+            "name": "com.Group7.RoboWars",
+            "processId": 29626,
+            "exited": true
+        },
+        {
+            "deviceId": "RZCT90AG8EN",
+            "name": "com.Group7.RoboWars",
+            "processId": 1818,
+            "exited": true
+        },
+        {
+            "deviceId": "RZCT90AG8EN",
+            "name": "com.Group7.RoboWars",
+            "processId": 5255,
+            "exited": true
+        },
+        {
+            "deviceId": "RZCT90AG8EN",
+            "name": "com.Group7.RoboWars",
+            "processId": 7859,
+            "exited": false
+        },
+        {
+            "deviceId": "RZCT90AG8EN",
+            "name": "com.google.android.permissioncontroller",
+            "processId": 25530,
+            "exited": false
+        },
+        {
+            "deviceId": "RZCT90AG8EN",
+            "name": "com.Group7.RoboWars",
+            "processId": 13169,
+            "exited": false
+        },
+        {
+            "deviceId": "RZCT90AG8EN",
+            "name": "com.Group7.RoboWars",
+            "processId": 23911,
+            "exited": false
+        },
+        {
+            "deviceId": "RZCT90AG8EN",
+            "name": "com.Group7.RoboWars",
+            "processId": 27181,
+            "exited": false
+        },
+        {
+            "deviceId": "RZCT90AG8EN",
+            "name": "com.Group7.RoboWars",
+            "processId": 29095,
+            "exited": false
+        },
+        {
+            "deviceId": "RZCT90AG8EN",
+            "name": "com.Group7.RoboWars",
+            "processId": 12283,
+            "exited": false
+        },
+        {
+            "deviceId": "RZCT90AG8EN",
+            "name": "com.Group7.RoboWars",
+            "processId": 4006,
+            "exited": false
         },
         {
             "deviceId": "RZCT90AG8EN",
             "name": "com.Group7.RoboWars",
             "processId": 17463,
-            "exited": true
-        },
-        {
-            "deviceId": "RZCT90AG8EN",
-            "name": "com.Group7.RoboWars",
-            "processId": 5950,
-            "exited": true
-        },
-        {
-            "deviceId": "RZCT90AG8EN",
-            "name": "com.Group7.RoboWars",
-            "processId": 17577,
-            "exited": true
+            "exited": false
         },
         {
             "deviceId": "18221JEC200301",
