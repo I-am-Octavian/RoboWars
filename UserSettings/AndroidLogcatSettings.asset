@@ -1,9 +1,9 @@
 {
-    "m_SelectedDeviceId": "RZCT90AG8EN",
+    "m_SelectedDeviceId": "43e7a1ca",
     "m_SelectedPackage": {
-        "deviceId": "RZCT90AG8EN",
+        "deviceId": "43e7a1ca",
         "name": "com.Group7.RoboWars",
-        "processId": 17463,
+        "processId": 30328,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -126,6 +126,12 @@
             "deviceId": "18221JEC200301",
             "name": "com.Group7.RoboWars",
             "processId": 25622,
+            "exited": false
+        },
+        {
+            "deviceId": "43e7a1ca",
+            "name": "com.Group7.RoboWars",
+            "processId": 30328,
             "exited": false
         }
     ],
