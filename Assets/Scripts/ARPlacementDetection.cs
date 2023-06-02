@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using Photon.Pun;
+using System.Xml.Serialization;
+using ExitGames.Client.Photon;
+using Photon.Realtime;
 
-public class ARPlacementDetection : MonoBehaviour, IPunObservable
+public class ARPlacementDetection : MonoBehaviour //, IPunObservable
 {
     private GameObject m_GameManager;
 
@@ -13,6 +16,9 @@ public class ARPlacementDetection : MonoBehaviour, IPunObservable
     PhotonView photonView;
 
     private bool m_IsOtherPlayerReady = false;
+    private bool m_IsCurrentPlayerReady = false;
+
+    private bool m_IsCurrentPlayerReadyPrev = true;
 
     public static bool s_StartGame = false;
 
@@ -31,6 +37,8 @@ public class ARPlacementDetection : MonoBehaviour, IPunObservable
 
     void Start()
     {
+        PhotonNetwork.NetworkingClient.EventReceived += OnEvent;
+
         photonView = GetComponent<PhotonView>();
         // m_ARPlacementManager = GetComponent<ARPlacementManager>();
         m_ARTapToPlaceObject = GetComponent<ARTapToPlaceObject>();
@@ -38,15 +46,35 @@ public class ARPlacementDetection : MonoBehaviour, IPunObservable
         // m_ARRaycastManager = GetComponent<ARRaycastManager>();
     }
 
+    private void OnDestroy()
+    {
+        PhotonNetwork.NetworkingClient.EventReceived -= OnEvent;
+    }
+
     // Update is called once per frame
     void Update()
     {
-        /*
-        if(s_StartGame)
+        m_IsCurrentPlayerReady = ARTapToPlaceObject.GetIsArenaPlaced();
+
+        if (m_IsCurrentPlayerReady != m_IsCurrentPlayerReadyPrev)
+        {
+            // Raise a custom event to send the boolean value
+            object[] eventData = new object[] { m_IsCurrentPlayerReady };
+            RaiseEventOptions options = new RaiseEventOptions { Receivers = ReceiverGroup.Others, CachingOption = EventCaching.AddToRoomCache };
+            PhotonNetwork.RaiseEvent(1, eventData, options, SendOptions.SendReliable);
+            m_IsCurrentPlayerReadyPrev = m_IsCurrentPlayerReady;
+        }
+
+        if(m_IsOtherPlayerReady && m_IsCurrentPlayerReady)
+        {
+            s_StartGame = true;
+        }
+
+        if (s_StartGame)
         {
             m_GameManager.SetActive(true);
         }
-        */
+           
 
         // if(ARPlacementManager.GetIsArenaPlaced())
         // {
@@ -64,7 +92,7 @@ public class ARPlacementDetection : MonoBehaviour, IPunObservable
         //     m_ARPlaneManager.enabled = true;
         //     m_ARPlacementManager.enabled = true;
         // }
-        if (ARTapToPlaceObject.GetIsArenaPlaced())
+        if (m_IsCurrentPlayerReady)
         {
             foreach (var plane in m_ARPlaneManager.trackables)
             {
@@ -82,6 +110,25 @@ public class ARPlacementDetection : MonoBehaviour, IPunObservable
         // }
     }
 
+    void OnEvent(EventData photonEvent)
+    {
+        if (photonEvent.Code == 1)
+        {
+            object[] eventData = (object[])photonEvent.CustomData;
+
+            // Get the boolean value from the event data
+            bool receivedValue = (bool)eventData[0];
+
+            // Update the boolean value if it's different from the current value
+            if (receivedValue != m_IsOtherPlayerReady)
+            {
+                m_IsOtherPlayerReady = receivedValue;
+                // Handle the updated boolean value
+                Debug.Log("Other Player ready value changed: " + m_IsOtherPlayerReady);
+            }
+        }
+    }
+/*
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if(s_StartGame)
@@ -91,14 +138,23 @@ public class ARPlacementDetection : MonoBehaviour, IPunObservable
         
         Debug.LogWarning("In Plane Detection syncronization script");
         Debug.LogWarning("Other Player Ready status " + m_IsOtherPlayerReady);
-        Debug.LogWarning("Current Player Ready status " + ARTapToPlaceObject.GetIsArenaPlaced());
+        Debug.LogWarning("Current Player Ready status " + m_IsCurrentPlayerReady);
+
+        if(stream == null)
+        {
+            Debug.LogWarning("Stream is Null");
+        }
 
         if (stream.IsWriting)
         {
-            if (!(m_IsOtherPlayerReady && ARTapToPlaceObject.GetIsArenaPlaced()))
+            if (!(m_IsOtherPlayerReady && m_IsCurrentPlayerReady))
             {
-                stream.SendNext(ARTapToPlaceObject.GetIsArenaPlaced());
-                if (m_IsOtherPlayerReady && ARTapToPlaceObject.GetIsArenaPlaced())
+                if(m_IsCurrentPlayerReady != m_IsCurrentPlayerReadyPrev)
+                {
+                    stream.SendNext(m_IsCurrentPlayerReady);
+                    m_IsCurrentPlayerReadyPrev = m_IsCurrentPlayerReady;
+                }
+                if (m_IsOtherPlayerReady && m_IsCurrentPlayerReady)
                 {
                     s_StartGame = true;
                     Debug.LogWarning("StartGame updated");
@@ -110,10 +166,15 @@ public class ARPlacementDetection : MonoBehaviour, IPunObservable
         }
         else // Read
         {
-            if (!(m_IsOtherPlayerReady && ARTapToPlaceObject.GetIsArenaPlaced()))
+            if (!(m_IsOtherPlayerReady && m_IsCurrentPlayerReady))
             {
-                m_IsOtherPlayerReady = (bool)stream.ReceiveNext();
-                if (m_IsOtherPlayerReady && ARTapToPlaceObject.GetIsArenaPlaced())
+                bool receivedValue = (bool)stream.ReceiveNext();
+                if(m_IsOtherPlayerReady != receivedValue)
+                {
+                    m_IsOtherPlayerReady = receivedValue;
+                }
+
+                if (m_IsOtherPlayerReady && m_IsCurrentPlayerReady)
                 {
                     s_StartGame = true;
                     Debug.LogWarning("StartGame updated");
@@ -123,5 +184,5 @@ public class ARPlacementDetection : MonoBehaviour, IPunObservable
             else
                 if (!s_StartGame) { s_StartGame = true; Debug.LogWarning("StartGame updated"); }
         }
-    }
+    }*/
 }

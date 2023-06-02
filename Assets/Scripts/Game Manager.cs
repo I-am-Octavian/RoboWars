@@ -20,11 +20,13 @@ public class GameManager : MonoBehaviourPunCallbacks
     public static GameManager instance;
     private void Awake()
     {
-        instance = this;
     }
     private void Start()
     {
+        instance = this;
         Debug.LogWarning("Game Manager Start");
+
+        spawnPoints = new Transform[2];
 
         playerPrefabLocation = "Robot";
         pickedSpawnIndex = new List<int>();
@@ -70,8 +72,15 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
     void SpawnPlayer()
     {
-        int randomSpawnPoint = Random.Range(0, spawnPoints.Length - 1);
-        Vector3 instantiatePosition = spawnPoints[randomSpawnPoint].position;
+        Vector3 instantiatePosition;
+        if(PhotonNetwork.IsMasterClient)
+        {
+            instantiatePosition = spawnPoints[0].position;
+        }
+        else
+        {
+            instantiatePosition = spawnPoints[1].position;
+        }
         GameObject playerObject = PhotonNetwork.Instantiate(playerPrefabLocation, instantiatePosition, Quaternion.identity);
         Debug.LogWarning("Player Instatiated at " + instantiatePosition);
         //intialize the player

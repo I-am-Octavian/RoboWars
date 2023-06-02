@@ -45,6 +45,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
+        arCameraGameObject = GameObject.FindGameObjectWithTag("Camera");
         Debug.LogWarning("Player Movement Start");
         m_RigidBody = GetComponent<Rigidbody>();
         m_CapsuleCollider = GetComponent<CapsuleCollider>();
