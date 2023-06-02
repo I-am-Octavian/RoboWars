@@ -46,14 +46,14 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         Debug.LogWarning("Ready!");
         
-        foreach (GameObject gameObj in GameObject.FindGameObjectsWithTag("Player"))
-        {
-           gameObj.transform.SetParent(imageTarget.transform);
-        }
-        for (int i = 1; i < imageTarget.transform.childCount; i++)
-        {
-            imageTarget.transform.GetChild(i).gameObject.SetActive(ARPlacementDetection.s_StartGame);
-        }
+        // foreach (GameObject gameObj in GameObject.FindGameObjectsWithTag("Player"))
+        // {
+        //    gameObj.transform.SetParent(imageTarget.transform);
+        // }
+        // for (int i = 1; i < imageTarget.transform.childCount; i++)
+        // {
+        //     imageTarget.transform.GetChild(i).gameObject.SetActive(ARPlacementDetection.s_StartGame);
+        // }
     }
     [PunRPC]
     void ImInGame()
@@ -63,6 +63,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         // if (playersInGame == PhotonNetwork.PlayerList.Length)
         if(ARPlacementDetection.s_StartGame)
         {
+            Debug.LogWarning("Plane position: " + GameObject.FindGameObjectWithTag("Plane").transform);
+
             spawnPoints[0] = GameObject.FindGameObjectWithTag("Plane").transform;
             spawnPoints[0].position = new Vector3(spawnPoints[0].position.x, spawnPoints[0].position.y+1, spawnPoints[0].position.z-1);
             spawnPoints[1] = GameObject.FindGameObjectWithTag("Plane").transform;
@@ -75,16 +77,18 @@ public class GameManager : MonoBehaviourPunCallbacks
         Vector3 instantiatePosition;
         if(PhotonNetwork.IsMasterClient)
         {
+            Debug.LogWarning("On master client");
             instantiatePosition = spawnPoints[0].position;
         }
         else
         {
+            Debug.LogWarning("Not on master client");
             instantiatePosition = spawnPoints[1].position;
         }
         GameObject playerObject = PhotonNetwork.Instantiate(playerPrefabLocation, instantiatePosition, Quaternion.identity);
         Debug.LogWarning("Player Instatiated at " + instantiatePosition);
         //intialize the player
-        PhotonView playerPhotonView = playerObject.GetComponent<PhotonView>();
+        PhotonView playerPhotonView = playerObject.transform.GetChild(0).gameObject.GetComponent<PhotonView>();
         playerPhotonView.RPC("Initialize", RpcTarget.All, PhotonNetwork.LocalPlayer);
     }
     public PlayerMovement GetPlayer(int playerID)

@@ -133,15 +133,18 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.name == "bullet")
+        if(other.tag == "bullet")
         {
-            if(m_PlayerHealth - m_DamagePerBullet > 0)
+            if(other.name != photonPlayer.NickName)
             {
-                m_PlayerHealth -= m_DamagePerBullet;
-            }
-            else
-            {
-                Debug.Log("Player Died");
+                if(m_PlayerHealth - m_DamagePerBullet > 0)
+                {
+                    m_PlayerHealth -= m_DamagePerBullet;
+                }
+                else
+                {
+                    Debug.Log("Player Died");
+                }
             }
         }    
     }
