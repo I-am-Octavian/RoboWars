@@ -1,9 +1,9 @@
 {
-    "m_SelectedDeviceId": "43e7a1ca",
+    "m_SelectedDeviceId": "RFCRA1DQ0LJ",
     "m_SelectedPackage": {
-        "deviceId": "43e7a1ca",
-        "name": "com.Group7.RoboWars",
-        "processId": 30328,
+        "deviceId": "",
+        "name": "",
+        "processId": 0,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -132,6 +132,24 @@
             "deviceId": "43e7a1ca",
             "name": "com.Group7.RoboWars",
             "processId": 30328,
+            "exited": true
+        },
+        {
+            "deviceId": "43e7a1ca",
+            "name": "com.miui.home",
+            "processId": 12435,
+            "exited": false
+        },
+        {
+            "deviceId": "RFCRA1DQ0LJ",
+            "name": "com.sec.android.app.launcher",
+            "processId": 2392,
+            "exited": false
+        },
+        {
+            "deviceId": "RFCRA1DQ0LJ",
+            "name": "com.android.settings",
+            "processId": 11801,
             "exited": false
         }
     ],
