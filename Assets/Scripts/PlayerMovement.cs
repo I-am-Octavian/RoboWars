@@ -95,8 +95,6 @@ public class PlayerMovement : MonoBehaviour
             if (direction == Vector3.zero)
             {
                 robotAnimator.enabled = false;
-                if (transform.position.y == m_JumpInitHeight)
-                      m_RigidBody.constraints = RigidbodyConstraints.FreezeAll;
             }
             else
             {
