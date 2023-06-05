@@ -15,7 +15,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     public float speed = 2f;
     public float jumpForce = 5f;
-    public float groundCheckDistance = 0.01f;
+    public float groundCheckDistance = 0f;
 
     public VariableJoystick variableJoystick;
     public Animator robotAnimator;
@@ -33,7 +33,6 @@ public class PlayerMovement : MonoBehaviour
     private float m_JumpInitHeight;
     private int m_PlayerHealth = 2000;
     private readonly int m_DamagePerBullet = 200;
-    private PhotonView m_PhotonView;
 
 
     [PunRPC]
@@ -51,33 +50,12 @@ public class PlayerMovement : MonoBehaviour
         m_RigidBody = GetComponent<Rigidbody>();
         m_CapsuleCollider = GetComponent<CapsuleCollider>();
         m_JumpInitHeight = transform.position.y;
-        m_PhotonView = GetComponent<PhotonView>();
         // playerNickName.text = photonPlayer.NickName;
-
-        Debug.LogWarning("Jump Initial Height" + m_JumpInitHeight);
     }
 
-    private void Update()
-    {
-        if(photonPlayer.IsLocal)
-        {
-            if(Input.GetButton("FireButton"))
-            {
-                m_PhotonView.RPC("Fire", RpcTarget.All);
-            }
-            if(Input.GetButton("JumpButton"))
-            {
-                m_PhotonView.RPC("Jump", RpcTarget.All);
-            }
-
-        }
-    }
-
-    // [PunRPC]
+    [PunRPC]
     void FixedUpdate()
     {
-        Debug.LogWarning("Current player position " + transform.position);
-
         if (photonPlayer.IsLocal)
         {
             Vector3 direction = Vector3.forward * variableJoystick.Vertical + Vector3.right * variableJoystick.Horizontal;
@@ -88,7 +66,7 @@ public class PlayerMovement : MonoBehaviour
             }
             if (transform.position.y == m_JumpInitHeight)
             {
-                m_RigidBody.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotation;
+                m_RigidBody.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             }
 
 
@@ -106,21 +84,16 @@ public class PlayerMovement : MonoBehaviour
         }
 
     }
-
-    [PunRPC]
+    
     public void Jump()
     {
-        if(photonPlayer.IsLocal)
+        if(m_Grounded)
         {
-            if(m_Grounded)
-            {
-                m_RigidBody.constraints = ~RigidbodyConstraints.FreezePositionY;
-                transform.position = new Vector3(transform.position.x, transform.position.y + 0.01f, transform.position.z);
-                m_RigidBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            }
+            m_RigidBody.constraints = ~RigidbodyConstraints.FreezePositionY;
+            transform.position = new Vector3(transform.position.x, transform.position.y + 0.01f, transform.position.z);
+            m_RigidBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
     }
-
     [PunRPC]
     public void Fire()
     {
@@ -136,7 +109,6 @@ public class PlayerMovement : MonoBehaviour
                 Vector3 direction;
 
                 GameObject bullet = Instantiate(Resources.Load<GameObject>("bullet"));
-                bullet.name = photonPlayer.NickName;
                 // bullet.name = photonPlayer.NickName;
                 Rigidbody bulletRigidBody = bullet.GetComponent<Rigidbody>();
 

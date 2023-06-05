@@ -11,8 +11,6 @@ public class MySynchronisationScript : MonoBehaviour, IPunObservable
     Vector3 networkPosition;
     Quaternion networkRotation;
 
-    GameObject planeObject;
-
 
     public bool synchronisedVelocity = true;
     public bool synchronisedAngularVelocity = true;
@@ -24,7 +22,6 @@ public class MySynchronisationScript : MonoBehaviour, IPunObservable
    
     private void Awake()
     {
-        planeObject = GameObject.FindGameObjectWithTag("Plane");
         rb = GetComponent<Rigidbody>();
         photonView = GetComponent<PhotonView>();
         networkPosition = new Vector3();
@@ -48,11 +45,10 @@ public class MySynchronisationScript : MonoBehaviour, IPunObservable
         {
             return;
         }
-        if (!photonView.IsMine) // Receive position
+        if (!photonView.IsMine)
         {
             rb.position = Vector3.MoveTowards(rb.position, networkPosition,distance *(1.0f/PhotonNetwork.SerializationRate));
             rb.rotation = Quaternion.RotateTowards(rb.rotation, networkRotation, angle * (1.0f / PhotonNetwork.SerializationRate));
-            Debug.LogWarning("Other player position = " + rb.position);
         }
 
     }
@@ -68,7 +64,7 @@ public class MySynchronisationScript : MonoBehaviour, IPunObservable
                 return;
             }
 
-            stream.SendNext(rb.position - planeObject.transform.position);
+            stream.SendNext(rb.position);
             stream.SendNext(rb.rotation);
             if (synchronisedVelocity)
             {
@@ -86,7 +82,7 @@ public class MySynchronisationScript : MonoBehaviour, IPunObservable
             {
                 return;
             }
-            networkPosition = (Vector3) stream.ReceiveNext() + planeObject.transform.position;
+            networkPosition = (Vector3) stream.ReceiveNext();
             networkRotation = (Quaternion) stream.ReceiveNext();
             // teleport if the remote player has gone gone to far due to connectivity issues
             if (isTeleportEnabled)
