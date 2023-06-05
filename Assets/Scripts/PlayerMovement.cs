@@ -57,22 +57,6 @@ public class PlayerMovement : MonoBehaviour
         Debug.LogWarning("Jump Initial Height" + m_JumpInitHeight);
     }
 
-    private void Update()
-    {
-        if(photonPlayer.IsLocal)
-        {
-            if(Input.GetButton("FireButton"))
-            {
-                m_PhotonView.RPC("Fire", RpcTarget.All);
-            }
-            if(Input.GetButton("JumpButton"))
-            {
-                m_PhotonView.RPC("Jump", RpcTarget.All);
-            }
-
-        }
-    }
-
     // [PunRPC]
     void FixedUpdate()
     {
@@ -80,6 +64,16 @@ public class PlayerMovement : MonoBehaviour
 
         if (photonPlayer.IsLocal)
         {
+            if (Input.GetButton("FireButton"))
+            {
+                m_PhotonView.RPC("Fire", RpcTarget.All);
+                Debug.LogWarning("Fire Button pressed by " + photonPlayer.NickName);
+            }
+            if (Input.GetButton("JumpButton"))
+            {
+                m_PhotonView.RPC("Jump", RpcTarget.All);
+                Debug.LogWarning("Jump Button pressed by " + photonPlayer.NickName);
+            }
             Vector3 direction = Vector3.forward * variableJoystick.Vertical + Vector3.right * variableJoystick.Horizontal;
 
             if (transform.position.y > m_JumpInitHeight)
@@ -102,7 +96,8 @@ public class PlayerMovement : MonoBehaviour
             }
             transform.Translate(speed * Time.fixedDeltaTime * direction);
 
-            m_Grounded = Physics.Raycast(transform.position, Vector3.down, m_CapsuleCollider.bounds.extents.y + groundCheckDistance, groundLayer);
+            m_Grounded = transform.position.y == m_JumpInitHeight;
+            // m_Grounded = Physics.Raycast(transform.position, Vector3.down, m_CapsuleCollider.bounds.extents.y + groundCheckDistance, groundLayer);
         }
 
     }
@@ -110,15 +105,14 @@ public class PlayerMovement : MonoBehaviour
     [PunRPC]
     public void Jump()
     {
-        if(photonPlayer.IsLocal)
+        
+        if(m_Grounded)
         {
-            if(m_Grounded)
-            {
-                m_RigidBody.constraints = ~RigidbodyConstraints.FreezePositionY;
-                transform.position = new Vector3(transform.position.x, transform.position.y + 0.01f, transform.position.z);
-                m_RigidBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            }
+            m_RigidBody.constraints = ~RigidbodyConstraints.FreezePositionY;
+            transform.position = new Vector3(transform.position.x, transform.position.y + 0.01f, transform.position.z);
+            m_RigidBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
+        
     }
 
     [PunRPC]
@@ -147,7 +141,7 @@ public class PlayerMovement : MonoBehaviour
                 direction = hit.transform.position - transform.position;
                 direction.Normalize();
                 
-                bullet.transform.localPosition = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
+                bullet.transform.localPosition = new Vector3(transform.position.x, transform.position.y + 0.1f, transform.position.z);
                 bullet.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
 
                 Debug.Log("Shoot Direction: " + direction);
@@ -161,7 +155,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.tag == "bullet")
+        if(other.CompareTag("bullet"))
         {
             if(other.name != photonPlayer.NickName)
             {
