@@ -15,7 +15,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     public float speed = 2f;
     public float jumpForce = 5f;
-    public float groundCheckDistance = 0f;
+    public float groundCheckDistance = 0.01f;
 
     public VariableJoystick variableJoystick;
     public Animator robotAnimator;
@@ -33,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
     private float m_JumpInitHeight;
     private int m_PlayerHealth = 2000;
     private readonly int m_DamagePerBullet = 200;
+    private PhotonView m_PhotonView;
 
 
     [PunRPC]
@@ -50,14 +51,29 @@ public class PlayerMovement : MonoBehaviour
         m_RigidBody = GetComponent<Rigidbody>();
         m_CapsuleCollider = GetComponent<CapsuleCollider>();
         m_JumpInitHeight = transform.position.y;
+        m_PhotonView = GetComponent<PhotonView>();
         // playerNickName.text = photonPlayer.NickName;
+
+        Debug.LogWarning("Jump Initial Height" + m_JumpInitHeight);
     }
 
-    [PunRPC]
+    // [PunRPC]
     void FixedUpdate()
     {
+        Debug.LogWarning("Current player position " + transform.position);
+
         if (photonPlayer.IsLocal)
         {
+            if (Input.GetButton("FireButton"))
+            {
+                m_PhotonView.RPC("Fire", RpcTarget.All);
+                Debug.LogWarning("Fire Button pressed by " + photonPlayer.NickName);
+            }
+            if (Input.GetButton("JumpButton"))
+            {
+                m_PhotonView.RPC("Jump", RpcTarget.All);
+                Debug.LogWarning("Jump Button pressed by " + photonPlayer.NickName);
+            }
             Vector3 direction = Vector3.forward * variableJoystick.Vertical + Vector3.right * variableJoystick.Horizontal;
 
             if (transform.position.y > m_JumpInitHeight)
@@ -66,7 +82,7 @@ public class PlayerMovement : MonoBehaviour
             }
             if (transform.position.y == m_JumpInitHeight)
             {
-                m_RigidBody.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+                m_RigidBody.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotation;
             }
 
 
@@ -80,20 +96,25 @@ public class PlayerMovement : MonoBehaviour
             }
             transform.Translate(speed * Time.fixedDeltaTime * direction);
 
-            m_Grounded = Physics.Raycast(transform.position, Vector3.down, m_CapsuleCollider.bounds.extents.y + groundCheckDistance, groundLayer);
+            m_Grounded = transform.position.y == m_JumpInitHeight;
+            // m_Grounded = Physics.Raycast(transform.position, Vector3.down, m_CapsuleCollider.bounds.extents.y + groundCheckDistance, groundLayer);
         }
 
     }
-    
+
+    [PunRPC]
     public void Jump()
     {
+        
         if(m_Grounded)
         {
             m_RigidBody.constraints = ~RigidbodyConstraints.FreezePositionY;
             transform.position = new Vector3(transform.position.x, transform.position.y + 0.01f, transform.position.z);
             m_RigidBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
+        
     }
+
     [PunRPC]
     public void Fire()
     {
@@ -109,6 +130,7 @@ public class PlayerMovement : MonoBehaviour
                 Vector3 direction;
 
                 GameObject bullet = Instantiate(Resources.Load<GameObject>("bullet"));
+                bullet.name = photonPlayer.NickName;
                 // bullet.name = photonPlayer.NickName;
                 Rigidbody bulletRigidBody = bullet.GetComponent<Rigidbody>();
 
@@ -119,7 +141,7 @@ public class PlayerMovement : MonoBehaviour
                 direction = hit.transform.position - transform.position;
                 direction.Normalize();
                 
-                bullet.transform.localPosition = new Vector3(transform.position.x, transform.position.y + 0.5f, transform.position.z);
+                bullet.transform.localPosition = new Vector3(transform.position.x, transform.position.y + 0.1f, transform.position.z);
                 bullet.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
 
                 Debug.Log("Shoot Direction: " + direction);
@@ -133,7 +155,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.tag == "bullet")
+        if(other.CompareTag("bullet"))
         {
             if(other.name != photonPlayer.NickName)
             {
