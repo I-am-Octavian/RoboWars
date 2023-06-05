@@ -15,6 +15,10 @@ public class mute: MonoBehaviour
             PlayerPrefs.SetInt("muted", 0);
             Load();
         }
+        else
+        {
+            Load();
+        }
         UpdateButtonIcon();
         AudioListener.pause = muted;
     }
