@@ -3636,7 +3636,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1986678995932192243}
         m_TargetAssemblyTypeName: PlayerMovement, Assembly-CSharp
-        m_MethodName: Fire
+        m_MethodName: CallFire
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

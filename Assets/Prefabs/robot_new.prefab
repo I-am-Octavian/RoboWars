@@ -1359,7 +1359,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1177335440068894478}
         m_TargetAssemblyTypeName: PlayerMovement, Assembly-CSharp
-        m_MethodName: Fire
+        m_MethodName: CallFire
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -6168,6 +6168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ba4c3eddacb2af45a6720cc8cfd49ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GameManagerObject: {fileID: 0}
 --- !u!1 &7252844887270271952
 GameObject:
   m_ObjectHideFlags: 0
@@ -6543,7 +6544,7 @@ Transform:
   - {fileID: 5532224096770251330}
   - {fileID: 6202959801979073488}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &8049587409588915853
 Animator:

@@ -9,7 +9,7 @@ using Photon.Pun.Demo.Asteroids;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
+[RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider), typeof(PhotonView))]
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField]
@@ -60,20 +60,11 @@ public class PlayerMovement : MonoBehaviour
     // [PunRPC]
     void FixedUpdate()
     {
+
         Debug.LogWarning("Current player position " + transform.position);
 
         if (photonPlayer.IsLocal)
         {
-            if (Input.GetButton("FireButton"))
-            {
-                m_PhotonView.RPC("Fire", RpcTarget.All);
-                Debug.LogWarning("Fire Button pressed by " + photonPlayer.NickName);
-            }
-            if (Input.GetButton("JumpButton"))
-            {
-                m_PhotonView.RPC("Jump", RpcTarget.All);
-                Debug.LogWarning("Jump Button pressed by " + photonPlayer.NickName);
-            }
             Vector3 direction = Vector3.forward * variableJoystick.Vertical + Vector3.right * variableJoystick.Horizontal;
 
             if (transform.position.y > m_JumpInitHeight)
@@ -98,15 +89,26 @@ public class PlayerMovement : MonoBehaviour
 
             m_Grounded = transform.position.y == m_JumpInitHeight;
             // m_Grounded = Physics.Raycast(transform.position, Vector3.down, m_CapsuleCollider.bounds.extents.y + groundCheckDistance, groundLayer);
+            Debug.LogWarning("Grounded status " + m_Grounded);
         }
 
     }
+
+    public void CallFire()
+    {
+        if(photonPlayer.IsLocal)
+        {
+            m_PhotonView.RPC("Fire", RpcTarget.All);
+            Debug.LogWarning("Fire Button pressed by " + photonPlayer.NickName);
+        }
+    }
+
 
     [PunRPC]
     public void Jump()
     {
         
-        if(m_Grounded)
+        if(photonPlayer.IsLocal && m_Grounded)
         {
             m_RigidBody.constraints = ~RigidbodyConstraints.FreezePositionY;
             transform.position = new Vector3(transform.position.x, transform.position.y + 0.01f, transform.position.z);
@@ -141,7 +143,7 @@ public class PlayerMovement : MonoBehaviour
                 direction = hit.transform.position - transform.position;
                 direction.Normalize();
                 
-                bullet.transform.localPosition = new Vector3(transform.position.x, transform.position.y + 0.1f, transform.position.z);
+                bullet.transform.localPosition = new Vector3(transform.position.x, transform.position.y + 0.3f, transform.position.z);
                 bullet.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
 
                 Debug.Log("Shoot Direction: " + direction);
@@ -165,7 +167,8 @@ public class PlayerMovement : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("Player Died");
+                    // Resources.Load<GameObject>("DeathScreenCanvasLost");
+
                 }
             }
         }    
