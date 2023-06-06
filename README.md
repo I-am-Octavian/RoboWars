@@ -25,9 +25,9 @@ Welcome to RoboWars, an exhilarating online multiplayer game that takes robot ba
 
 ### Gameplay:
 <br>
-<img src='readmeAssets/RoomCreation.jpg'>
+<img src='readmeAssets/roomcreation.jpg'>
 <br>
-<img src='readmeAssets/lobby.jpeg'>
+<img src='readmeAssets/Lobby.jpeg'>
 <br>
 RoboWars puts you in the driver's seat of a formidable robot. The objective of the game is simple but exhilarating - be the last robot standing! Engage in fast-paced battles against another player-controlled robot and strategically eliminate your opponent to emerge victorious.
 <br>
