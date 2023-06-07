@@ -127,6 +127,18 @@ public class ARPlacementDetection : MonoBehaviour //, IPunObservable
                 Debug.Log("Other Player ready value changed: " + m_IsOtherPlayerReady);
             }
         }
+        else if (photonEvent.Code == 2)
+        {
+            object[] eventData = (object[])photonEvent.CustomData;
+
+            // Get the boolean value from the event data
+            bool receivedValue = (bool)eventData[0];
+
+            if (receivedValue)
+            {
+                Instantiate(Resources.Load<GameObject>("DeathScreenCanvasLost"));
+            }
+        }
     }
 /*
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
