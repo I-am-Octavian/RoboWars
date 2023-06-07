@@ -8,6 +8,7 @@ TagManager:
   - Crosshair
   - Plane
   - Camera
+  - PlayerScreenCanvas
   layers:
   - Default
   - TransparentFX

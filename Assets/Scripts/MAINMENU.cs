@@ -21,6 +21,9 @@ public class MAINMENU : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("MENU");
-        Destroy(GameManagerObject);
+        if(GameManagerObject != null)
+        {
+            Destroy(GameManagerObject);
+        }
     }
 }

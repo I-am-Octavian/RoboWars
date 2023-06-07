@@ -65,7 +65,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         playersInGame++;
         Debug.LogWarning("Players in Game = " + playersInGame);
         // if (playersInGame == PhotonNetwork.PlayerList.Length)
-        if(ARPlacementDetection.s_StartGame && !m_IsCurrentPlayerSpawned)
+        if(playersInGame ==  2 && ARPlacementDetection.s_StartGame && !m_IsCurrentPlayerSpawned)
         {
             Debug.LogWarning("Plane Initial position: " + GameObject.FindGameObjectWithTag("Plane").transform.position);
 
@@ -84,20 +84,24 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             Debug.LogWarning("On master client");
             spawnPosition = GameObject.FindGameObjectWithTag("Plane").transform;
-            instantiatePosition = new Vector3(spawnPosition.position.x, spawnPosition.position.y + 1.01f, spawnPosition.position.z - 1.0f);
+            Debug.LogWarning("Captured Plane Position = " + spawnPosition.position);
+            instantiatePosition = new Vector3(spawnPosition.position.x, spawnPosition.position.y + 0.2f, spawnPosition.position.z - 0.2f);
         }
         else
         {
             Debug.LogWarning("Not on master client"); 
             spawnPosition = GameObject.FindGameObjectWithTag("Plane").transform;
-            instantiatePosition = new Vector3(spawnPosition.position.x, spawnPosition.position.y + 1.01f, spawnPosition.position.z + 1.0f);
+            Debug.LogWarning("Captured Plane Position = " + spawnPosition.position);
+            instantiatePosition = new Vector3(spawnPosition.position.x, spawnPosition.position.y + 0.2f, spawnPosition.position.z + 0.2f);
         }
-        instantiatePosition = new Vector3(instantiatePosition.x - 13.20967f + 0.03f, instantiatePosition.y + 17.31141f + 0.18f, instantiatePosition.z - 10.39281f - 2f);
+        //instantiatePosition = new Vector3(instantiatePosition.x - 13.20967f + 0.03f, instantiatePosition.y + 17.31141f + 0.18f, instantiatePosition.z - 10.39281f - 2f);
+        instantiatePosition = new Vector3(instantiatePosition.x, instantiatePosition.y, instantiatePosition.z);
         GameObject playerObject = PhotonNetwork.Instantiate(playerPrefabLocation, instantiatePosition, Quaternion.identity);
         m_IsCurrentPlayerSpawned = true;
-        Debug.LogWarning("Player Instatiated at " + instantiatePosition);
+        Debug.LogWarning("Player Instantiated at " + instantiatePosition);
         //intialize the player
-        PhotonView playerPhotonView = playerObject.transform.GetChild(0).gameObject.GetComponent<PhotonView>();
+        // PhotonView playerPhotonView = playerObject.transform.GetChild(0).gameObject.GetComponent<PhotonView>();
+        PhotonView playerPhotonView = playerObject.GetComponent<PhotonView>();
         playerPhotonView.RPC("Initialize", RpcTarget.All, PhotonNetwork.LocalPlayer);
     }
     public PlayerMovement GetPlayer(int playerID)

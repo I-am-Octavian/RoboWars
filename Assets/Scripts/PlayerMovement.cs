@@ -8,14 +8,16 @@ using Photon.Realtime;
 using Photon.Pun.Demo.Asteroids;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.UI;
+using ExitGames.Client.Photon;
+using Photon.Pun.Demo.Cockpit;
 
-[RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
-public class PlayerMovement : MonoBehaviour
+[RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider), typeof(PhotonView))]
+public class PlayerMovement : MonoBehaviour, IPunObservable
 {
     [SerializeField]
     public float speed = 2f;
     public float jumpForce = 5f;
-    public float groundCheckDistance = 0.01f;
+    public float groundCheckDistance;
 
     public VariableJoystick variableJoystick;
     public Animator robotAnimator;
@@ -31,9 +33,16 @@ public class PlayerMovement : MonoBehaviour
     private CapsuleCollider m_CapsuleCollider;
     private bool m_Grounded = true;
     private float m_JumpInitHeight;
-    private int m_PlayerHealth = 2000;
+    private const int m_MaxHealth = 2000;
+    private int m_PlayerHealth = m_MaxHealth;
+    private int m_OtherPlayerHealth = m_MaxHealth;
     private readonly int m_DamagePerBullet = 200;
     private PhotonView m_PhotonView;
+
+    public UnityEngine.UI.Slider CurrentPlayerHealthManager;
+    public UnityEngine.UI.Slider OtherPlayerHealthManager;
+
+    private bool m_OtherUIVisible = true;
 
 
     [PunRPC]
@@ -46,6 +55,12 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
+        CurrentPlayerHealthManager.maxValue = m_MaxHealth;
+        OtherPlayerHealthManager.maxValue = m_MaxHealth;
+
+        CurrentPlayerHealthManager.value = m_MaxHealth;
+        OtherPlayerHealthManager.value = m_MaxHealth;
+
         arCameraGameObject = GameObject.FindGameObjectWithTag("Camera");
         Debug.LogWarning("Player Movement Start");
         m_RigidBody = GetComponent<Rigidbody>();
@@ -57,23 +72,13 @@ public class PlayerMovement : MonoBehaviour
         Debug.LogWarning("Jump Initial Height" + m_JumpInitHeight);
     }
 
-    // [PunRPC]
     void FixedUpdate()
     {
+        Debug.LogWarning("Jump Initial Height" + m_JumpInitHeight);
         Debug.LogWarning("Current player position " + transform.position);
-
+        Debug.LogWarning("Player Movement Local status " + photonPlayer.IsLocal);
         if (photonPlayer.IsLocal)
         {
-            if (Input.GetButton("FireButton"))
-            {
-                m_PhotonView.RPC("Fire", RpcTarget.All);
-                Debug.LogWarning("Fire Button pressed by " + photonPlayer.NickName);
-            }
-            if (Input.GetButton("JumpButton"))
-            {
-                m_PhotonView.RPC("Jump", RpcTarget.All);
-                Debug.LogWarning("Jump Button pressed by " + photonPlayer.NickName);
-            }
             Vector3 direction = Vector3.forward * variableJoystick.Vertical + Vector3.right * variableJoystick.Horizontal;
 
             if (transform.position.y > m_JumpInitHeight)
@@ -96,20 +101,88 @@ public class PlayerMovement : MonoBehaviour
             }
             transform.Translate(speed * Time.fixedDeltaTime * direction);
 
-            m_Grounded = transform.position.y == m_JumpInitHeight;
-            // m_Grounded = Physics.Raycast(transform.position, Vector3.down, m_CapsuleCollider.bounds.extents.y + groundCheckDistance, groundLayer);
+            // m_Grounded = transform.position.y == m_JumpInitHeight;
+            m_Grounded = Physics.Raycast(transform.position, Vector3.down, m_CapsuleCollider.bounds.extents.y + groundCheckDistance, groundLayer);
+            Debug.LogWarning("Grounded status " + m_Grounded);
+
+            if(transform.position.y + 5 < m_JumpInitHeight)
+            {
+                Instantiate(Resources.Load<GameObject>("DeathScreenCanvasLost"));
+
+                object[] eventData = new object[] { true };
+                RaiseEventOptions options = new RaiseEventOptions { Receivers = ReceiverGroup.Others, CachingOption = EventCaching.AddToRoomCache };
+                PhotonNetwork.RaiseEvent(2, eventData, options, SendOptions.SendReliable);
+            }
+            OtherPlayerHealthManager.value = m_OtherPlayerHealth;
         }
 
     }
 
-    [PunRPC]
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            // We own this player: send the others our data
+            Debug.LogWarning("Sending Current Health " + m_PlayerHealth);
+            stream.SendNext(m_PlayerHealth);
+        }
+        else
+        {
+            // Network player, receive data
+            m_OtherPlayerHealth = (int)stream.ReceiveNext();
+            Debug.LogWarning("Receiving other player health " + m_OtherPlayerHealth);
+            OtherPlayerHealthManager.value = m_OtherPlayerHealth;
+        }
+    }
+
+    public void CallFire()
+    {
+        Debug.LogWarning("In CallFireFunction");
+        Debug.LogWarning("Player Local status " + photonPlayer.IsLocal);
+
+        if (m_OtherUIVisible && !photonPlayer.IsLocal)
+        {
+            for (int i = 1; i < transform.childCount; i++)
+            {
+                if(transform.GetChild(i).gameObject.CompareTag("PlayerScreenCanvas"))
+                {
+                    transform.GetChild(i).gameObject.SetActive(false);
+                }
+            }
+            m_OtherUIVisible = false;
+        }
+
+        if (photonPlayer.IsLocal)
+        {
+            m_PhotonView.RPC("Fire", RpcTarget.All);
+            Debug.LogWarning("Fire Button pressed by " + photonPlayer.NickName);
+        }
+    }
+
+
+    // [PunRPC]
     public void Jump()
     {
-        
-        if(m_Grounded)
+        Debug.LogWarning("In Jump function");
+        Debug.LogWarning("Player Locality status " + photonPlayer.IsLocal);
+        Debug.LogWarning("Player grounded status " + m_Grounded);
+
+        if (m_OtherUIVisible && !photonPlayer.IsLocal)
+        {
+            for (int i = 1; i < transform.childCount; i++)
+            {
+                if (transform.GetChild(i).gameObject.CompareTag("PlayerScreenCanvas"))
+                {
+                    transform.GetChild(i).gameObject.SetActive(false);
+                }
+            }
+            m_OtherUIVisible = false;
+        }
+
+        if (photonPlayer.IsLocal && m_Grounded)
         {
             m_RigidBody.constraints = ~RigidbodyConstraints.FreezePositionY;
-            transform.position = new Vector3(transform.position.x, transform.position.y + 0.01f, transform.position.z);
+            transform.position = new Vector3(transform.position.x, transform.position.y + 0.1f, transform.position.z);
             m_RigidBody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
         
@@ -118,9 +191,7 @@ public class PlayerMovement : MonoBehaviour
     [PunRPC]
     public void Fire()
     {
-
-        GameObject crosshair = GameObject.FindGameObjectWithTag("Crosshair");
-        Vector3 crosshairPosition = crosshair.transform.position;
+        Debug.LogWarning("In Fire function");
 
         RaycastHit hit;
         if(Physics.Raycast(arCameraGameObject.transform.position, arCameraGameObject.transform.forward, out hit))
@@ -131,7 +202,6 @@ public class PlayerMovement : MonoBehaviour
 
                 GameObject bullet = Instantiate(Resources.Load<GameObject>("bullet"));
                 bullet.name = photonPlayer.NickName;
-                // bullet.name = photonPlayer.NickName;
                 Rigidbody bulletRigidBody = bullet.GetComponent<Rigidbody>();
 
                 Debug.Log("Hit Position: " + hit.transform.position);
@@ -141,7 +211,7 @@ public class PlayerMovement : MonoBehaviour
                 direction = hit.transform.position - transform.position;
                 direction.Normalize();
                 
-                bullet.transform.localPosition = new Vector3(transform.position.x, transform.position.y + 0.1f, transform.position.z);
+                bullet.transform.localPosition = new Vector3(transform.position.x, transform.position.y + 0.3f, transform.position.z);
                 bullet.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
 
                 Debug.Log("Shoot Direction: " + direction);
@@ -162,10 +232,15 @@ public class PlayerMovement : MonoBehaviour
                 if(m_PlayerHealth - m_DamagePerBullet > 0)
                 {
                     m_PlayerHealth -= m_DamagePerBullet;
+                    CurrentPlayerHealthManager.value = m_PlayerHealth;
                 }
                 else
                 {
-                    Debug.Log("Player Died");
+                    Instantiate(Resources.Load<GameObject>("DeathScreenCanvasWon"));
+
+                    object[] eventData = new object[] { true };
+                    RaiseEventOptions options = new RaiseEventOptions { Receivers = ReceiverGroup.Others, CachingOption = EventCaching.AddToRoomCache };
+                    PhotonNetwork.RaiseEvent(2, eventData, options, SendOptions.SendReliable);
                 }
             }
         }    

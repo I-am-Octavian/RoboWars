@@ -24,7 +24,9 @@ public class MySynchronisationScript : MonoBehaviour, IPunObservable
    
     private void Awake()
     {
+        Debug.LogWarning("Syncronization Script Awake");
         planeObject = GameObject.FindGameObjectWithTag("Plane");
+        Debug.LogWarning("Location of plane object = " + planeObject.transform.position);
         rb = GetComponent<Rigidbody>();
         photonView = GetComponent<PhotonView>();
         networkPosition = new Vector3();
@@ -33,7 +35,7 @@ public class MySynchronisationScript : MonoBehaviour, IPunObservable
     // Start is called before the first frame update
     void Start()
     {
-        
+        Debug.LogWarning("Syncronization Script Start");
     }
 
     // Update is called once per frame
@@ -78,10 +80,12 @@ public class MySynchronisationScript : MonoBehaviour, IPunObservable
             {
                 stream.SendNext(rb.angularVelocity);
             }
+            Debug.LogWarning("Sending Current Position" + rb.position);
         }
         else
         {
             // this will call on my instance that is there on remote player
+            Debug.LogWarning("Sending Current Position");
             if (!ARPlacementDetection.s_StartGame)
             {
                 return;
