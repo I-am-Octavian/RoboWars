@@ -107,7 +107,11 @@ public class PlayerMovement : MonoBehaviour, IPunObservable
 
             if(transform.position.y + 5 < m_JumpInitHeight)
             {
-                Instantiate(Resources.Load<GameObject>("DeathScreenCanvasWon"));
+                Instantiate(Resources.Load<GameObject>("DeathScreenCanvasLost"));
+
+                object[] eventData = new object[] { true };
+                RaiseEventOptions options = new RaiseEventOptions { Receivers = ReceiverGroup.Others, CachingOption = EventCaching.AddToRoomCache };
+                PhotonNetwork.RaiseEvent(2, eventData, options, SendOptions.SendReliable);
             }
             OtherPlayerHealthManager.value = m_OtherPlayerHealth;
         }
