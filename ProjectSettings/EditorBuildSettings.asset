@@ -17,15 +17,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Game.unity
     guid: c163915868b995d49bc7d09be9020177
-  - enabled: 0
-    path: Assets/Scenes/Scene_Lobby.unity
-    guid: 440fab74dfb736d46908c287bf83005f
-  - enabled: 0
-    path: Assets/Scenes/Scene_Loading.unity
-    guid: 943f6139fa75e76479b37f37a963962e
-  - enabled: 0
-    path: Assets/Scenes/Scene_GameTest.unity
-    guid: 4ebecd72e048d61438a22d84998f1484
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 495c58ca5754c5446a48a9c51c434496, type: 2}
     com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: 35da808ef9dc6e1498fac19638035174, type: 2}
